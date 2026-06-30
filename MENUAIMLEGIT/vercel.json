@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/check",
+      "destination": "https://nvvkey.dinhtienhoang1812010.workers.dev/api/check-key"
+    },
+    {
+      "source": "/activate",
+      "destination": "https://nvvkey.dinhtienhoang1812010.workers.dev/api/activate"
+    }
+  ]
+}

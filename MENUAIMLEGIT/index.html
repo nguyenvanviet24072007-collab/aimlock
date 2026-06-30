@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>MENU AIMLEGIT</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* --- MÀU CHỦ ĐẠO XANH CYAN --- */
+    :root {
+      --theme-color: #00f7ff; 
+      --theme-glow: rgba(0, 247, 255, 0.5);
+    }
+    .dev-btn, .booster-btn, .cm-btn-primary { 
+      background: var(--theme-color) !important; box-shadow: 0 4px 15px var(--theme-glow) !important; border: none !important; color: #000 !important; font-weight: bold;
+    }
+    .app-main, .vip-title, .game-title, .intro-title, .booster-title, .announce-title { 
+      color: var(--theme-color) !important; text-shadow: 0 0 8px var(--theme-glow) !important; 
+    }
+    .toggle-input:checked + .toggle-label { 
+      background-color: var(--theme-color) !important; box-shadow: 0 0 10px var(--theme-glow) !important; 
+    }
+    .console-dot.live { 
+      background-color: var(--theme-color) !important; box-shadow: 0 0 8px var(--theme-color) !important; 
+    }
+    .active { color: var(--theme-color) !important; }
+
+    /* --- CẤU TRÚC TAB --- */
+    .tab-content { display: none; padding-bottom: 90px; animation: fadeIn 0.4s ease; }
+    .tab-content.active-tab { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- BOTTOM NAV --- */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10, 15, 20, 0.95);
+      backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 0 25px 0; 
+      border-top: 1px solid rgba(0, 247, 255, 0.2); z-index: 9999;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; color: #777; font-size: 11px; font-weight: 600; cursor: pointer; transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), filter 0.1s !important; }
+    .nav-item i { font-size: 22px; margin-bottom: 4px; transition: all 0.3s ease; }
+    .nav-item.active-nav { color: var(--theme-color); }
+    .nav-item.active-nav i { transform: translateY(-3px); text-shadow: 0 0 10px var(--theme-glow); }
+    .nav-item:active i { transform: scale(0.8) translateY(2px); }
+
+    /* HIỆU ỨNG NHÚN NÚT */
+    .booster-btn, .dev-btn, .cm-btn-primary, .cm-btn-danger, .toggle-label { transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), filter 0.1s !important; cursor: pointer; }
+    .booster-btn:active, .dev-btn:active, .cm-btn-primary:active, .cm-btn-danger:active { transform: scale(0.92) !important; filter: brightness(1.3); }
+    .toggle-label:active { transform: scale(0.85) !important; }
+
+    /* --- THANH TRƯỢT PHÁT SÁNG CÓ ĐỔI MÀU TRACK --- */
+    .glowing-slider {
+      -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+      background: #0d1a26; outline: none;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5); transition: background 0.1s;
+    }
+    .glowing-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--theme-color); cursor: pointer;
+      box-shadow: 0 0 10px var(--theme-color), 0 0 20px rgba(0, 247, 255, 0.6); 
+      transition: transform 0.1s; border: 2px solid #fff;
+    }
+    .glowing-slider::-webkit-slider-thumb:active { transform: scale(1.2); }
+    
+    @keyframes moveCity { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* --- THANH PROGRESS BAR PHÁT SÁNG ĐUÔI --- */
+    .progress-bar { 
+      position: relative; height: 100%; width: 0%; 
+      background: var(--theme-color); border-radius: 4px;
+      box-shadow: 0 0 15px var(--theme-color); transition: width 0.1s linear; 
+    }
+    /* Tạo đốm chói lóa ở ngay đầu thanh chạy */
+    .progress-bar::after {
+      content: ""; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      width: 6px; height: 120%; background: #fff; border-radius: 4px;
+      box-shadow: 0 0 15px 5px var(--theme-color), 0 0 5px 2px #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div id="home-intro" class="home-intro" style="display: none;"></div>
+
+<div id="car-modal" style="display: none; position: fixed; inset: 0; z-index: 999999; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+  <div class="install-panel" style="width: 92%; max-width: 440px; background: #060b14; border-radius: 20px; padding: 25px; box-shadow: 0 0 40px rgba(0, 247, 255, 0.3), inset 0 0 20px rgba(0, 247, 255, 0.1); border: 1px solid rgba(0, 247, 255, 0.5); display: flex; flex-direction: column;">
+    <div class="install-header" style="display: flex; justify-content: space-between; font-size: 15px; color: #a8c9c9; font-weight: bold; margin-bottom: 20px;">
+      <span><i class="fas fa-crosshairs"></i> <span id="install-title">Aimlock Premium</span></span>
+      <span id="install-time"></span>
+    </div>
+    
+    <div class="install-scene" style="position: relative; height: 160px; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 20px; border: 1px solid rgba(0, 247, 255, 0.3);">
+      <div class="car-wrapper" style="width: 100%; height: 100%; position: absolute; inset: 0; animation: none;">
+        <img src="https://media.tenor.com/FhsRlliJoqkAAAAM/neon-car-gif-very-fast-car.gif" alt="Neon Car" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+      </div>
+      <div class="road-line" style="position: absolute; bottom: 0; left: 0; width: 200%; height: 5px; background: repeating-linear-gradient(to right, var(--theme-color) 0, var(--theme-color) 30px, transparent 30px, transparent 60px); animation: moveCity 1s linear infinite; box-shadow: 0 -2px 10px var(--theme-color);"></div>
+    </div>
+    
+    <div class="install-info" style="text-align: center; margin-bottom: 20px;">
+      <div class="install-status" style="font-size: 20px; font-weight: 900; color: #eaffff; margin-bottom: 8px;">Đang Cài Đặt: <span id="install-feature-name" style="color: var(--theme-color); font-weight: bold;">...</span></div>
+      <div class="install-sub-status" id="install-sub-text" style="font-size: 14px; color: #a8c9c9;">Khởi tạo dữ liệu...</div>
+    </div>
+    
+    <div class="progress-container" style="position: relative; height: 8px; background: #0a111a; border-radius: 4px; margin-bottom: 10px; border: 1px solid rgba(0, 247, 255, 0.2);">
+      <div class="progress-bar" id="install-progress"></div>
+    </div>
+    
+    <div class="progress-percent" id="install-percent" style="text-align: right; font-size: 16px; font-weight: bold; color: var(--theme-color);">0%</div>
+  </div>
+</div>
+
+<canvas id="particles-canvas"></canvas>
+
+<div class="container" id="main-panel" style="display: none;">
+  <header class="header">
+    <div class="app-title">
+      <span class="app-sub">GAME OPTIMIZER</span>
+      <span class="app-main">MENU AIMLEGIT</span>
+      <span class="app-game">FREE FIRE</span>
+    </div>
+  </header>
+
+  <div id="announce-bar" class="announce hidden">
+    <div class="announce-content">
+      <i class="fas fa-bullhorn"></i><span class="announce-title">ĐÃ NÂNG CẤP DRAG SENSI → MENU AIMLEGIT </span>
+      <div class="announce-tags">
+        <span class="tag"><i class="fas fa-hand-sparkles"></i>LUX Touch+</span>
+        <span class="tag"><i class="fas fa-arrows-rotate"></i>DPI động</span>
+        <span class="tag"><i class="fas fa-floppy-disk"></i>Tự lưu cấu hình</span>
+        <span class="tag"><i class="fas fa-rocket"></i>Chế độ Pro</span>
+        <span class="tag"><i class="fas fa-shield-halved"></i>Bộ lọc rung</span>
+      </div>
+    </div>
+    <button class="announce-close" id="announce-close" aria-label="Đóng"><i class="fas fa-times"></i></button>
+  </div>
+
+  <main class="main-content">
+
+    <div id="tab-info" class="tab-content active-tab">
+      <div class="admin-card" style="margin: 10px auto 20px; text-align: left; background: rgba(0,10,20,0.8); border: 1px solid var(--theme-color); box-shadow: 0 0 20px var(--theme-glow);">
+        <h4 style="color: var(--theme-color); text-align: center; margin-bottom: 15px; font-size: 16px;"><i class="fas fa-key"></i> QUẢN LÝ KEY VIP</h4>
+        <div style="font-size: 13px; margin-bottom: 8px;">
+          <b>Trạng thái:</b> <span style="color: #3cff9e; text-shadow: 0 0 5px rgba(60,255,158,0.8);">Đang hoạt động</span>
+        </div>
+        <div style="font-size: 13px; margin-bottom: 18px;">
+          <b>Còn lại:</b> <span id="info-key-exp" style="color: #cfffff; font-weight: bold;">Đang tải...</span>
+        </div>
+        <button class="dev-btn" style="width: 100%; padding: 12px; font-weight: 800; background: linear-gradient(135deg, #007bff, #0055aa) !important; border-radius: 12px; color: white !important;" onclick="logoutKey()">
+          <i class="fas fa-sign-out-alt"></i> Đăng Xuất Key
+        </button>
+      </div>
+
+      <div class="admin-card" style="margin: 20px auto; background: rgba(10,15,20,0.8); border: 1px solid rgba(0, 247, 255, 0.2);">
+        <img src="img/cc.jpg" class="admin-photo" alt="Dev VhaiDang">
+        <h4 style="color: var(--theme-color);">Z-Cheat</h4>
+        <p>Developer / Admin Menu AimLegit</p>
+        <div class="admin-links">
+          <a href="https://www.facebook.com/share/1HbKiGDTDh/?mibextid=wwXIfr" target="_blank">Facebook</a>
+          <a href="https://zalo.me/0905265479" target="_blank">Zalo</a>
+        </div>
+      </div>
+      <div class="footer" style="margin-top: 40px;">© Copyright Z-Cheat</div>
+    </div>
+
+    <div id="tab-aimlock" class="tab-content">
+      <section class="section">
+        <h2 class="section-title vip-title"><i class="fas fa-crown vip-icon"></i> CHỨC NĂNG PREMIUM</h2>
+        <div class="function-item">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">AIMLOCK</span><div class="function-desc"><span class="check"></span><span class="desc-text">Khóa Tâm Bám Đầu</span></div></div>
+          </div>
+          <div class="toggle-switch" data-function="config">
+            <input type="checkbox" id="config-toggle" class="toggle-input aimsync" />
+            <label for="config-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="function-item cn-master">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">SENSIVITY BOOSTER</span><div class="function-desc"><span class="check"></span><span class="desc-text">Nhạy Màn</span></div></div>
+          </div>
+          <div class="toggle-switch">
+            <input type="checkbox" id="cn-master-toggle" class="toggle-input aimsync">
+            <label for="cn-master-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="function-item">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">SCREEN BOOSTER</span><div class="function-desc"><span class="check"></span><span class="desc-text">Buff FPS</span></div></div>
+          </div>
+          <div class="toggle-switch">
+            <input type="checkbox" id="anti-rung-pro" class="toggle-input aimsync">
+            <label for="anti-rung-pro" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="function-item">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">ANCHOR AIM</span><div class="function-desc"><span class="check"></span><span class="desc-text">Ghìm Tâm</span></div></div>
+          </div>
+          <div class="toggle-switch">
+            <input type="checkbox" id="aim-assist-plus" class="toggle-input aimsync">
+            <label for="aim-assist-plus" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="function-item">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">FEATHER AIM</span><div class="function-desc"><span class="check"></span><span class="desc-text">Nhẹ Tâm</span></div></div>
+          </div>
+          <div class="toggle-switch" data-function="lux">
+            <input type="checkbox" id="lux-toggle" class="toggle-input aimsync" />
+            <label for="lux-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="function-item">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">HEADSHOT FIX</span><div class="function-desc"><span class="check"></span><span class="desc-text">Fix Lố</span></div></div>
+          </div>
+          <div class="toggle-switch" data-function="fix-rung">
+            <input type="checkbox" id="fix-rung-toggle" class="toggle-input aimsync" />
+            <label for="fix-rung-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="function-item">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">SHAKE FIX</span><div class="function-desc"><span class="check"></span><span class="desc-text">Fix Rung</span></div></div>
+          </div>
+          <div class="toggle-switch" data-function="nhe-tam">
+            <input type="checkbox" id="nhe-tam-toggle" class="toggle-input aimsync" />
+            <label for="nhe-tam-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="function-item">
+          <div class="function-content">
+            <div class="function-text-wrap"><span class="function-text">DRIFT FIX</span><div class="function-desc"><span class="check"></span><span class="desc-text">Fix Lạc Đạn</span></div></div>
+          </div>
+          <div class="toggle-switch" data-function="lock-dau">
+            <input type="checkbox" id="lock-dau-toggle" class="toggle-input aimsync" />
+            <label for="lock-dau-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="tab-optimize" class="tab-content">
+      <section class="section">
+        <div class="sensi-item">
+          <div class="sensi-content">
+            <div class="sensi-icon"><i class="fas fa-mobile-screen-button"></i></div>
+            <div class="sensi-info"><span class="sensi-label">DEVICE:</span><span class="sensi-value">IOS</span></div>
+          </div>
+        </div>
+
+        <div class="sensi-item">
+          <div class="sensi-content" style="width: 100%;">
+            <div class="sensi-icon"><i class="fas fa-sliders"></i></div>
+            <div class="sensi-info" style="width: calc(100% - 48px); flex-direction: column; align-items: flex-start;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="sensi-label">CHẾ ĐỘ TĂNG TỐC:</span>
+                <span id="mode-label" style="color:var(--theme-color); font-weight:900; text-shadow: 0 0 8px var(--theme-glow);">Mượt Mà</span>
+              </div>
+              <input type="range" id="mode-slider" class="glowing-slider" min="0" max="2" value="0" step="1" oninput="updateMode(this)" style="margin-top: 10px;">
+            </div>
+          </div>
+        </div>
+
+        <div class="sensi-item">
+          <div class="sensi-content" style="width: 100%;">
+            <div class="sensi-icon"><i class="fas fa-bullseye"></i></div>
+            <div class="sensi-info" style="width: calc(100% - 48px); flex-direction: column; align-items: flex-start;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span class="sensi-label">DPI TRICK TARGET:</span>
+                <span id="dpi-label" style="color:var(--theme-color); font-weight:900; text-shadow: 0 0 8px var(--theme-glow);">1.0x</span>
+              </div>
+              <input type="range" id="dpi-slider" class="glowing-slider" min="1" max="5" value="1" step="1" oninput="updateDPI(this)" style="margin-top: 10px;">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="extra-section">
+        <h2 class="section-title game-title">RAM / CPU MONITOR</h2>
+        <div class="console-mobile">
+          <div class="cm-grid">
+            <div class="cm-panel cm-panel-charts">
+              <h4>Realtime charts</h4>
+              <div class="cm-charts">
+                <div class="cm-chart-box">
+                  <div class="cm-chart-header">
+                    <div class="cm-label">CPU Load <span id="cm-cpu-text">--%</span></div>
+                    <div class="cm-pill"><span>Estimate</span><b id="cm-cpu-est">Frame time</b></div>
+                  </div>
+                  <canvas id="cm-cpu-canvas" width="900" height="240"></canvas>
+                </div>
+                <div class="cm-chart-box">
+                  <div class="cm-chart-header">
+                    <div class="cm-label">RAM Usage <span id="cm-ram-text">--</span></div>
+                    <div class="cm-pill"><span>Source</span><b id="cm-ram-src">Auto</b></div>
+                  </div>
+                  <canvas id="cm-ram-canvas" width="900" height="240"></canvas>
+                  <div class="cm-stats">
+                    <div class="cm-stat"><div class="cm-k">JS Heap Used</div><div class="cm-v" id="cm-heap-used">--</div></div>
+                    <div class="cm-stat"><div class="cm-k">JS Heap Limit</div><div class="cm-v" id="cm-heap-limit">--</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="cm-topbar">
+              <div class="cm-title"><h3></h3></div>
+              <div class="cm-controls">
+                <button id="cm-btn-ram" class="cm-btn cm-btn-primary">Dọn RAM</button>
+                <button id="cm-btn-cpu" class="cm-btn cm-btn-primary">Dọn CPU</button>
+                <button id="cm-btn-fps" class="cm-btn cm-btn-danger">Lock FPS: OFF</button>
+                <div class="cm-pill"><span>FPS</span><b id="cm-fps-now">--</b><span>• Mode</span><b id="cm-mode-now">Unlocked</b></div>
+              </div>
+            </div>
+            <div class="cm-panel cm-panel-console console-pro">
+              <div class="console-header"><span class="console-dot live"></span><span class="console-title-pro">SYSTEM CONSOLE</span><span class="console-status">LIVE</span></div>
+              <div id="cm-console" class="cm-console pro"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="booster-title" style="margin-top: 30px;"><span></span> BOOSTER GAME <span></span></div>
+      <div class="booster-card">
+        <div class="booster-left"><img src="https://i.ibb.co/4ZVWVqm8/IMG-1663.jpg" class="booster-icon"><span>FREE FIRE</span></div>
+        <button class="booster-btn" onclick="openFreeFire()">BOOSTER</button>
+      </div>
+      <div class="booster-card">
+        <div class="booster-left"><img src="https://i.ibb.co/chQpJKC7/IMG-1662.jpg" class="booster-icon"><span>FREE FIRE MAX</span></div>
+        <button class="booster-btn" onclick="openFreeFireMax()">BOOSTER</button>
+      </div>
+      <div id="booster-status" class="booster-status hidden" style="margin-bottom: 20px;">Launching game...</div>
+
+    </div>
+  </main>
+
+  <div class="bottom-nav">
+    <div class="nav-item active-nav" onclick="switchTab('tab-info', this)"><i class="fas fa-home"></i><span>Trang chủ</span></div>
+    <div class="nav-item" onclick="switchTab('tab-aimlock', this)"><i class="fas fa-crosshairs"></i><span>Aimlock</span></div>
+    <div class="nav-item" onclick="switchTab('tab-optimize', this)"><i class="fas fa-rocket"></i><span>Tối ưu</span></div>
+  </div>
+
+</div>
+
+<script src="panel-actions.js"></script>
+<script src="codecs.js"></script>
+<script src="codecss.js"></script>
+<script src="codecn.js"></script>
+<script src="codecn1.js"></script>
+<script src="codecn2.js"></script>
+<script src="codecn3.js"></script>
+<script src="codecn4.js"></script>
+<script src="codecn5.js"></script>
+<script src="codecn6.js"></script>
+<script src="codecn7.js"></script>
+<script src="codecn8.js"></script>
+<script src="codecn9.js"></script>
+<script src="codecn10.js"></script>
+<script src="codecn11.js"></script>
+<script src="codecn12.js"></script>
+<script src="codecn13.js"></script>
+<script src="codecn14.js"></script>
+<script src="codecn15.js"></script>
+<script src="codecn16.js"></script>
+<script src="codecn17.js"></script>
+<script src="codecn18.js"></script>
+<script src="codecn19.js"></script>
+<script src="codecn20.js"></script>
+<script src="codecn21.js"></script>
+<script src="codecn22.js"></script>
+<script src="codecn23.js"></script>
+<script src="codecn24.js"></script>
+<script src="codecn25.js"></script>
+<script src="codecn26.js"></script>
+<script src="codecn27.js"></script>
+<script src="codecn28.js"></script>
+<script src="codecn29.js"></script>
+<script src="codecn30.js"></script>
+<script src="codecn31.js"></script>
+<script src="codecn32.js"></script>
+<script src="codecn33.js"></script>
+<script src="codecn34.js"></script>
+<script src="codecn35.js"></script>
+<script src="codecn36.js"></script>
+<script src="codecn37.js"></script>
+<script src="codecn38.js"></script>
+<script src="codecn39.js"></script>
+<script src="codecn40.js"></script>
+<script src="codecn41.js"></script>
+<script src="codecn42.js"></script>
+<script src="codecn43.js"></script>
+<script src="codecn44.js"></script>
+<script src="codecn45.js"></script>
+<script src="codecn46.js"></script>
+<script src="codecn47.js"></script>
+<script src="codecn48.js"></script>
+<script src="codecn49.js"></script>
+<script src="codecn50.js"></script>
+<script src="app.js"></script>
+<script src="feature-hooks.js"></script>
+<script src="features.js"></script>
+<script src="key.js"></script>
+
+<script>
+  (() => {
+    const payload = "KCgpID0+IHsKICBjb25zdCBpc0Jsb2NrZWRDb21ibyA9IChldmVudCkgPT4gewogICAgY29uc3Qga2V5ID0gKGV2ZW50LmtleSB8fCAiIikudG9VcHBlckNhc2UoKTsKICAgIGlmIChrZXkgPT09ICJGMTIiKSByZXR1cm4gdHJ1ZTsKICAgIGlmIChldmVudC5jdHJsS2V5ICYmIGV2ZW50LnNoaWZ0S2V5ICYmIFsiSSIsICJKIiwgIkMiXS5pbmNsdWRlcyhrZXkpKSByZXR1cm4gdHJ1ZTsKICAgIGlmIChldmVudC5jdHJsS2V5ICYmICFldmVudC5zaGlmdEtleSAmJiBrZXkgPT09ICJVIikgcmV0dXJuIHRydWU7CiAgICByZXR1cm4gZmFsc2U7CiAgfTsKCiAgd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoImNvbnRleHRtZW51IiwgKGV2ZW50KSA9PiB7CiAgICBldmVudC5wcmV2ZW50RGVmYXVsdCgpOwogIH0pOwoKICB3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcigKICAgICJrZXlkb3duIiwKICAgIChldmVudCkgPT4gewogICAgICBpZiAoaXNCbG9ja2VkQ29tYm8oZXZlbnQpKSB7CiAgICAgICAgZXZlbnQucHJldmVudERlZmF1bHQoKTsKICAgICAgICBldmVudC5zdG9wUHJvcGFnYXRpb24oKTsKICAgICAgICByZXR1cm4gZmFsc2U7CiAgICAgIH0KICAgIH0sCiAgICB7IGNhcHR1cmU6IHRydWUgfQogICk7Cn0pKCk7";
+    const decode = typeof atob === "function" ? atob : (str) => Buffer.from(str, "base64").toString("utf8");
+    Function(decode(payload))();
+  })();
+</script>
+<script>
+  (function () {
+     const blockGesture = (e) => e.preventDefault();
+    ["gesturestart", "gesturechange"].forEach((ev) => document.addEventListener(ev, blockGesture, { passive: false }));
+     window.addEventListener("wheel", (e) => { if (e.ctrlKey) { e.preventDefault(); } }, { passive: false });
+    function loadScript(src, onDone) {
+      var s = document.createElement("script"); s.src = src; s.async = false;
+      s.onload = function () { if (typeof onDone === "function") onDone(); };
+      s.onerror = function () { console.error("Không tải được script:", src); if (typeof onDone === "function") onDone(); };
+      document.body.appendChild(s);
+    }
+    loadScript("./code/app-long-protected.js", function () { loadScript("./ketgate.js"); });
+  })();
+</script>
+<script>
+  (function () {
+     var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+    var warmStarted = false; var toggleLocks = new Set();
+    function warmConnection() {
+      if (warmStarted) return; warmStarted = true;
+       fetch("./code/app-long-protected.js?warm=" + Date.now(), { cache: "no-store", keepalive: true, mode: "no-cors", }).catch(function () { warmStarted = false; });
+    }
+    function isHighThroughput() {
+      if (!connection) return true;
+      if (/wifi|ethernet/gi.test(String(connection.type))) return true;
+      if (/5g/gi.test(String(connection.type))) return true;
+      if (connection.effectiveType && /4g|5g/gi.test(connection.effectiveType)) return true;
+      return connection.downlink && connection.downlink >= 10;
+    }
+    function smoothToggle(btn) {
+      var feature = btn.closest(".toggle-card");
+      var name = feature ? feature.dataset.feature || "unknown" : "unknown";
+      if (toggleLocks.has(name)) return; toggleLocks.add(name);
+       requestAnimationFrame(function () { warmConnection(); setTimeout(function () { toggleLocks.delete(name); }, 320); });
+    }
+     document.querySelectorAll(".toggle-card .aimlock-switch").forEach(function (btn) { btn.addEventListener("click", function () { smoothToggle(btn); }); });
+    if (connection && typeof connection.addEventListener === "function") { connection.addEventListener("change", function () { if (isHighThroughput()) { warmConnection(); } }); } else { warmConnection(); }
+  })();
+</script>
+
+<script>
+  // --- LOGIC THANH TRƯỢT ĐỔI MÀU TRACK KHI KÉO ---
+  let sliderAudioCtx = null;
+  function playSliderTick() {
+    try {
+      if (!sliderAudioCtx) sliderAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(sliderAudioCtx.state === 'suspended') sliderAudioCtx.resume();
+      const osc = sliderAudioCtx.createOscillator();
+      const gain = sliderAudioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1000, sliderAudioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, sliderAudioCtx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.15, sliderAudioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, sliderAudioCtx.currentTime + 0.05);
+      osc.connect(gain); gain.connect(sliderAudioCtx.destination);
+      osc.start(); osc.stop(sliderAudioCtx.currentTime + 0.05);
+    } catch(e) {}
+  }
+
+  function updateSliderTrack(slider) {
+    const min = parseFloat(slider.min) || 0;
+    const max = parseFloat(slider.max) || 100;
+    const val = parseFloat(slider.value);
+    const percentage = ((val - min) / (max - min)) * 100;
+    
+    // Nền tối #0d1a26 cho đoạn chưa kéo qua, nền sáng theme-color cho đoạn đã kéo
+    slider.style.background = `linear-gradient(90deg, var(--theme-color) ${percentage}%, #0d1a26 ${percentage}%)`;
+  }
+
+  const modeTexts = ["Mượt Mà", "Tiêu Chuẩn", "Cao Cấp"];
+  function updateMode(slider) {
+    document.getElementById('mode-label').innerText = modeTexts[slider.value];
+    updateSliderTrack(slider);
+    playSliderTick();
+  }
+  function updateDPI(slider) {
+    document.getElementById('dpi-label').innerText = slider.value + ".0x";
+    updateSliderTrack(slider);
+    playSliderTick();
+  }
+  
+  // Khởi tạo màu track khi vừa vào web
+  window.addEventListener('DOMContentLoaded', () => {
+     updateSliderTrack(document.getElementById('mode-slider'));
+     updateSliderTrack(document.getElementById('dpi-slider'));
+  });
+</script>
+
+<script>
+window.addEventListener("load", () => {
+  document.querySelectorAll(".modal, .notice-modal").forEach(el => { el.style.display = "none"; });
+});
+
+function switchTab(tabId, element) {
+  document.querySelectorAll('.tab-content').forEach(tab => { tab.classList.remove('active-tab'); });
+  document.querySelectorAll('.nav-item').forEach(nav => { nav.classList.remove('active-nav'); });
+  document.getElementById(tabId).classList.add('active-tab');
+  if(element) element.classList.add('active-nav');
+}
+
+function enterPanel() {
+  const intro = document.getElementById("home-intro");
+  const panel = document.getElementById("main-panel");
+  intro.style.opacity = "0";
+  intro.style.transition = "opacity 0.5s ease";
+
+  setTimeout(() => {
+    intro.style.display = "none";
+    panel.style.display = "block";
+    const notice = document.getElementById("site-notice");
+    if (notice) { notice.style.display = "block"; notice.classList.remove("hidden"); }
+  }, 500);
+}
+
+function logoutKey() {
+  if(confirm("⚠️ Bạn có chắc chắn muốn đăng xuất Key khỏi thiết bị này không?")) {
+    localStorage.removeItem("vsh_license_key"); 
+    if(window.VSHKeyGate && typeof window.VSHKeyGate.reset === "function") { window.VSHKeyGate.reset(); } 
+    else { location.reload(); }
+  }
+}
+
+// KHÔNG XỬ LÝ CỬA Ở ĐÂY NỮA, TOÀN BỘ LOGIC CỬA ĐÃ CHUYỂN SANG KEY.JS ĐỂ ĐẢM BẢO HOẠT ĐỘNG CHUẨN XÁC
+window.addEventListener("vsh-license-change", (e) => {
+  if (e.detail && e.detail.verified) {
+    const tabInfo = document.getElementById('tab-info');
+    const navInfo = document.querySelector('.nav-item[onclick*="tab-info"]');
+    if (tabInfo && navInfo) switchTab('tab-info', navInfo);
+  }
+});
+
+// LOGIC CÀI ĐẶT BẢNG XE CHẠY KHI CLICK AIMLOCK
+window.addEventListener('load', () => {
+  setInterval(() => {
+    const infoExpEl = document.getElementById('info-key-exp');
+    if(window.VSHKeyGate && infoExpEl) {
+      const keyState = window.VSHKeyGate.getState();
+      if(keyState.verified) {
+        if(keyState.expiresAt) {
+          let expDateStr = keyState.expiresAt;
+          if(!isNaN(expDateStr)) { expDateStr = String(expDateStr).length === 10 ? Number(expDateStr) * 1000 : Number(expDateStr); }
+          const distance = new Date(expDateStr).getTime() - new Date().getTime();
+
+          if(distance > 0) {
+            const d = Math.floor(distance / (1000 * 60 * 60 * 24)), h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)), m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)), s = Math.floor((distance % (1000 * 60)) / 1000);
+            infoExpEl.innerText = d > 365 ? "Vĩnh viễn" : `${d}d ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            infoExpEl.style.color = "#3cff9e";
+          } else { infoExpEl.innerText = "Đã hết hạn"; infoExpEl.style.color = "#ff0055"; }
+        } else { infoExpEl.innerText = "Vĩnh viễn"; infoExpEl.style.color = "#3cff9e"; }
+      } else { infoExpEl.innerText = "Chưa có Key"; infoExpEl.style.color = "#ff0055"; }
+    }
+  }, 1000);
+  
+  document.querySelectorAll('.aimsync').forEach(input => {
+    input.addEventListener('click', function(e) {
+      if(!this.checked) return;
+      e.preventDefault();
+      const self = this;
+      const featureName = this.closest('.function-item').querySelector('.function-text').innerText.trim() || "Chức năng ẩn";
+      const modal = document.getElementById('car-modal');
+      const fNameEl = document.getElementById('install-feature-name');
+      const subTextEl = document.getElementById('install-sub-text');
+      const progressEl = document.getElementById('install-progress');
+      const percentEl = document.getElementById('install-percent');
+      const timeEl = document.getElementById('install-time');
+      
+      fNameEl.innerText = featureName;
+      progressEl.style.width = '0%';
+      percentEl.innerText = '0%';
+      subTextEl.innerText = 'Khởi tạo cấu hình...';
+      
+      const now = new Date();
+      timeEl.innerText = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+      
+      modal.style.display = 'flex';
+      
+      let audioCtx;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator(); const filter = audioCtx.createBiquadFilter(); const gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(30, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 1.5); 
+        filter.type = 'lowpass'; filter.frequency.setValueAtTime(150, audioCtx.currentTime); filter.frequency.linearRampToValueAtTime(500, audioCtx.currentTime + 1.5);
+        gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2.5);
+        osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 2.5);
+      } catch(err) {}
+
+      let progress = 0;
+      const messages = ["Đang tiêm mã an toàn...", "Chạy kiểm tra tính toàn vẹn dữ liệu...", "Đồng bộ hệ thống máy chủ...", "Hoàn tất thiết lập!"];
+      
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 5) + 2; 
+        if(progress > 100) progress = 100;
+        progressEl.style.width = progress + '%';
+        percentEl.innerText = progress + '%';
+        if(progress < 30) subTextEl.innerText = messages[0];
+        else if(progress < 60) subTextEl.innerText = messages[1];
+        else if(progress < 90) subTextEl.innerText = messages[2];
+        else subTextEl.innerText = messages[3];
+
+        if(progress >= 100) {
+          clearInterval(interval);
+          if(audioCtx) {
+            const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain();
+            osc2.type = 'sine'; osc2.frequency.setValueAtTime(880, audioCtx.currentTime); osc2.frequency.setValueAtTime(1108.73, audioCtx.currentTime + 0.1); 
+            gain2.gain.setValueAtTime(0, audioCtx.currentTime); gain2.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05); gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc2.connect(gain2); gain2.connect(audioCtx.destination);
+            osc2.start(audioCtx.currentTime); osc2.stop(audioCtx.currentTime + 0.5);
+          }
+          setTimeout(() => { modal.style.display = 'none'; self.checked = true; }, 600); 
+        }
+      }, 60); 
+    });
+  });
+});
+</script>
+
+<script>
+  // --- HIỆU ỨNG BOKEH MỜ ẢO ĐÃ ĐƯỢC CHỈNH CHUẨN XANH CYAN ---
+  const canvas = document.getElementById('particles-canvas');
+  if(canvas) {
+    const ctx = canvas.getContext('2d');
+    let width, height, stars = [], meteors = [], ripples = [], bokehs = [];
+    
+    function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+    
+    class Star {
+      constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.size = Math.random() * 1.5; this.blinkSpeed = Math.random() * 0.03 + 0.005; this.alpha = Math.random(); this.alphaDir = Math.random() > 0.5 ? 1 : -1; }
+      draw() { ctx.fillStyle = `rgba(0, 247, 255, ${this.alpha})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+      update() { this.alpha += this.blinkSpeed * this.alphaDir; if (this.alpha >= 1 || this.alpha <= 0.1) this.alphaDir *= -1; }
+    }
+    
+    class Meteor {
+      constructor() { this.reset(); }
+      reset() { this.x = Math.random() * width * 1.5; this.y = -50; this.length = Math.random() * 200 + 100; this.speedX = -(Math.random() * 6 + 5); this.speedY = Math.random() * 6 + 5; this.size = Math.random() * 3 + 1; this.active = false; this.delay = Math.random() * 100 + 20; }
+      draw() { 
+        if (!this.active) return; 
+        let gradient = ctx.createLinearGradient(this.x, this.y, this.x - this.speedX * this.length * 0.2, this.y - this.speedY * this.length * 0.2); 
+        gradient.addColorStop(0, "rgba(255, 255, 255, 1)"); 
+        gradient.addColorStop(0.1, "rgba(0, 247, 255, 1)"); 
+        gradient.addColorStop(1, "rgba(0, 247, 255, 0)"); 
+        ctx.strokeStyle = gradient; ctx.lineWidth = this.size; ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.speedX * this.length * 0.2, this.y - this.speedY * this.length * 0.2); ctx.stroke(); 
+        ctx.beginPath(); ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2); ctx.fill();
+      }
+      update() { if (!this.active) { this.delay--; if (this.delay <= 0) this.active = true; return; } this.x += this.speedX; this.y += this.speedY; if (this.y > height || this.x < 0) this.reset(); }
+    }
+    
+    // BOKEH MỜ ẢO (KHÔNG VIỀN CỨNG, MÀU CHUẨN CYAN 0, 247, 255)
+    class Bokeh {
+      constructor() { this.reset(true); }
+      reset(randomY = false) {
+        this.x = Math.random() * width;
+        this.y = randomY ? Math.random() * height : height + 100;
+        this.size = Math.random() * 40 + 30; // Hạt to, đường kính 30-70px
+        this.speedY = -(Math.random() * 0.4 + 0.1); // Trôi lững lờ cực chậm
+        this.speedX = Math.random() * 0.2 - 0.1; 
+        this.opacity = Math.random() * 0.4 + 0.1; // Mờ ảo xa xăm
+      }
+      update() {
+        this.y += this.speedY; this.x += this.speedX; 
+        if (this.y < -100 || this.x < -100 || this.x > width + 100) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        // Tâm sáng một chút, viền nhòe hoàn toàn vào nền đen
+        let grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+        grad.addColorStop(0, `rgba(0, 247, 255, ${this.opacity})`);
+        grad.addColorStop(0.4, `rgba(0, 247, 255, ${this.opacity * 0.6})`); 
+        grad.addColorStop(1, `rgba(0, 247, 255, 0)`); 
+        ctx.fillStyle = grad;
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    class Ripple {
+      constructor(x, y) { this.x = x; this.y = y; this.radius = 0; this.maxRadius = 40 + Math.random() * 20; this.opacity = 1; }
+      update() { this.radius += 2.5; this.opacity -= 0.04; }
+      draw() {
+        if (this.opacity <= 0) return;
+        ctx.beginPath(); ctx.strokeStyle = `rgba(0, 247, 255, ${this.opacity})`; ctx.lineWidth = 2; ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.strokeStyle = `rgba(100, 247, 255, ${this.opacity * 0.4})`; ctx.lineWidth = 5; ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+
+    for (let i = 0; i < 80; i++) stars.push(new Star()); 
+    for (let i = 0; i < 3; i++) meteors.push(new Meteor());
+    for (let i = 0; i < 60; i++) bokehs.push(new Bokeh()); 
+    
+    window.addEventListener('pointerdown', (e) => { ripples.push(new Ripple(e.clientX, e.clientY)); });
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      if (Math.random() < 0.003) { ctx.fillStyle = `rgba(0, 247, 255, ${Math.random() * 0.1 + 0.05})`; ctx.fillRect(0, 0, width, height); }
+      
+      // Vẽ Bokeh ở dưới cùng
+      bokehs.forEach(b => { b.update(); b.draw(); }); 
+      
+      // Vẽ các hạt sắc nét nổi lên trên
+      stars.forEach(s => { s.update(); s.draw(); }); 
+      meteors.forEach(m => { m.update(); m.draw(); });
+      
+      for (let i = ripples.length - 1; i >= 0; i--) { ripples[i].update(); ripples[i].draw(); if (ripples[i].opacity <= 0) ripples.splice(i, 1); }
+      
+      requestAnimationFrame(animate);
+    }
+    animate();
+  }
+</script>
+<script>
+  (function() {
+    const securityCheck = setInterval(() => {
+      if (typeof window.VSHKeyGate === 'undefined') {
+        console.error("CẢNH BÁO: Hệ thống bảo mật bị vô hiệu hóa!");
+        document.body.innerHTML = `
+          <div style="background:#000; color:#00f7ff; height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px;">
+            <div>
+              <h1 style="font-size:50px;">⚠️</h1>
+              <h2>LỖI HỆ THỐNG TRẦM TRỌNG</h2>
+              <p>File bảo mật đã bị xóa hoặc chỉnh sửa trái phép.</p>
+              <p>Vui lòng cài đặt lại bản gốc để tiếp tục sử dụng.</p>
+              <button onclick="location.reload()" style="background:#00f7ff; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; margin-top:20px;">THỬ LẠI</button>
+            </div>
+          </div>`;
+        clearInterval(securityCheck);
+      }
+    }, 2000);
+  })();
+</script>
+</body>
+</html>
